@@ -1324,10 +1324,12 @@ defmodule Phoenix.LiveView.Channel do
   end
 
   defp maybe_subscribe_to_live_reload({:noreply, %{socket: socket} = state}) do
-    live_reload_config = socket.endpoint.config(:live_view)
+    live_reload_config = socket.endpoint.config(:live_reload)
 
-    if topic = live_reload_config[:live_reload_topic] do
-      socket.endpoint.subscribe(topic)
+    for {topic, _patterns} <- live_reload_config[:notify] || [] do
+      topic
+      |> to_string()
+      |> socket.endpoint.subscribe()
     end
 
     {:noreply, state}
